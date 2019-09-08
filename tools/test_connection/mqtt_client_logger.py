@@ -65,7 +65,7 @@ def on_message(client, obj, msg):
     os.fsync(fo.fileno())    
     global counter
     counter = counter + 1
-    if counter == 3*60:
+    if counter == 3*60 * 30:
         counter = 0
         fo.close()
         fo = None

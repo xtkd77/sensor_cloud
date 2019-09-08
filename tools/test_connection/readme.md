@@ -19,3 +19,12 @@ HandleLidSwitch=ignore
 '''
 sudo systemctl restart systemd-logind
 '''
+
+### plot
+
+- prepare data:
+
+'''
+cat test_connection/*.log | grep -v  ^d > tmp.csv
+python3 plot_csv.py tmp.csv
+'''
