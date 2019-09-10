@@ -57,8 +57,8 @@ def on_message(client, obj, msg):
         filename = '%s.mqttcleint.log' % now.strftime('%Y%m%d_%H%M%S')    
         fo = open(filename, 'w')
         print("open: ", filename)
-        fo.write('date,time,topic,value,\n')
-    fo.write("%s,%s,%s,%s,\n"
+        fo.write('date,time,topic,value\n')
+    fo.write("%s,%s,%s,%s\n"
              % (now.strftime('%Y/%m/%d'), now.strftime('%H:%M:%S'),
                  msg.topic.split('/')[-1], msg.payload.decode('UTF-8')) )
     fo.flush()
