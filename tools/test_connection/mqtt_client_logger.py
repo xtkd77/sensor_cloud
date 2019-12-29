@@ -13,6 +13,7 @@ import paho.mqtt.client as mqtt
 import socket, select
 import datetime
 
+
 mqtt_url = sys.argv[1] # e.g., "mqtt://username:password@ip_addr:port"
 
 topics = ['esp32/pressure', 'esp32/temperature', 'esp32/humidity']
@@ -34,7 +35,8 @@ print('hostname=', url_prs.hostname, '(MQTT)')
 print('hostport=', url_prs.port, '(MQTT)')
 
 fo = None
-counter = 0
+prev_hour = -1
+tz = None
 #############################################################################
 def on_connect(client, userdata, flags, rc):
     '''When MQTT clienct connection established, start subscribing
@@ -51,24 +53,31 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, obj, msg):    
     #print(sys._getframe().f_code.co_name)        
     print('topic=', msg.topic, ' qos=', str(msg.qos), " payload=", msg.payload)
-    now = datetime.datetime.now()
+    global tz
+    if tz is None:
+        tz = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
+    now = datetime.datetime.now(tz)
+
+    # If hour is changed, output file name is changed.
+    global prev_hour
     global fo
+    if prev_hour != now.hour:
+        if fo is not None:
+            fo.close()
+        fo = None
     if fo == None:
-        filename = '%s.mqttcleint.log' % now.strftime('%Y%m%d_%H%M%S')    
+        filename = '%s.sensor_mqtt.log' % now.strftime('%Y%m%d_%H%M%S')    
         fo = open(filename, 'w')
-        print("open: ", filename)
-        fo.write('date,time,topic,value\n')
-    fo.write("%s,%s,%s,%s\n"
+        print(f"open: {filename}  datetime:{now}")
+        fo.write('date,time,topic,value,\n')
+    fo.write("%s,%s,%s,%s,\n"
              % (now.strftime('%Y/%m/%d'), now.strftime('%H:%M:%S'),
                  msg.topic.split('/')[-1], msg.payload.decode('UTF-8')) )
     fo.flush()
-    os.fsync(fo.fileno())    
-    global counter
-    counter = counter + 1
-    if counter == 3*60 * 30:
-        counter = 0
-        fo.close()
-        fo = None
+    os.fsync(fo.fileno())
+    #
+    prev_hour = now.hour
+
 
 def on_subscribe(client, obj, mid, granted_qos):
     print(sys._getframe().f_code.co_name)        
