@@ -1,11 +1,10 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""
+センサーロガーのメッセージを受信してファイルに保存するMQTT Client の実装です。
 
-#----------------------------------------------------
-#
-# (c) TORUPA Laboratory
-#
-#----------------------------------------------------
+(c) TORUPA Laboratory 2019
+
+"""
 
 import sys, os
 import urllib.parse as urlparse
@@ -13,11 +12,15 @@ import paho.mqtt.client as mqtt
 import socket, select
 import datetime
 
+import gcp_pubsub # Google PubSub を利用するためのmodule
+
+gcp_pubsub.initialize()
 
 mqtt_url = sys.argv[1] # e.g., "mqtt://username:password@ip_addr:port"
 
 topics = ['esp32/pressure', 'esp32/temperature', 'esp32/humidity']
 url_str = os.environ.get('CLOUDMQTT_URL', mqtt_url)
+
 
 #
 # Make an instance of MQTT client
@@ -29,14 +32,12 @@ mqttc = mqtt.Client("", True, None, mqtt.MQTTv31)
 # Parse CLOUDMQTT_URL
 #
 url_prs = urlparse.urlparse(url_str)
-print('username=', url_prs.username, '(MQTT)')
-print('password=', url_prs.password, '(MQTT)')
-print('hostname=', url_prs.hostname, '(MQTT)')
-print('hostport=', url_prs.port, '(MQTT)')
+print('mqtt://{}:{}@{}{}'.format(url_prs.username, url_prs.password, url_prs.hostname, url_prs.port) )
 
 fo = None
 prev_hour = -1
-tz = None
+tz = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
+
 #############################################################################
 def on_connect(client, userdata, flags, rc):
     '''When MQTT clienct connection established, start subscribing
@@ -50,12 +51,11 @@ def on_connect(client, userdata, flags, rc):
         print(sys._getframe().f_code.co_name, "rc != 0")
 
 
-def on_message(client, obj, msg):    
+def on_message(client, obj, msg):
+    """ MQTTメッセージを受信し、データをファイルに出力します。 """
+
     #print(sys._getframe().f_code.co_name)        
-    print('topic=', msg.topic, ' qos=', str(msg.qos), " payload=", msg.payload)
-    global tz
-    if tz is None:
-        tz = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
+    print(__name__, 'topic=', msg.topic, ' qos=', str(msg.qos), " payload=", msg.payload)
     now = datetime.datetime.now(tz)
 
     # If hour is changed, output file name is changed.
@@ -75,16 +75,22 @@ def on_message(client, obj, msg):
                  msg.topic.split('/')[-1], msg.payload.decode('UTF-8')) )
     fo.flush()
     os.fsync(fo.fileno())
+
+    gcp_pubsub.publish_msg("mydevice",  msg.payload)
     #
     prev_hour = now.hour
 
 
 def on_subscribe(client, obj, mid, granted_qos):
+    """ MQTT メッセージを受信したときに呼ばれます """
+
     print(sys._getframe().f_code.co_name)        
     print("Subscribed: " + str(mid) + " " + str(granted_qos))
 
 
 def on_disconnect(client, userdata, flag, rc):
+    """ MQTTブローカーへの接続を切ったときに呼ばれます """
+
     if  rc != 0:
         print("Unexpected disconnection.")
 
@@ -99,7 +105,6 @@ mqttc.on_disconnect = on_disconnect
 
 if url_prs.username is not None and url_prs.password is not None:
     mqttc.username_pw_set(url_prs.username, url_prs.password)
-print('call connect')
 mqttc.connect(url_prs.hostname, url_prs.port, 60)
 print('loop_forever')
 mqttc.loop_forever(timeout=1.0, max_packets=1, retry_first_connection=False)
