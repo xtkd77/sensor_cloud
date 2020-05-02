@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 """
+
 センサーロガーのメッセージを受信してファイルに保存するMQTT Client の実装です。
 
 (c) TORUPA Laboratory 2019
@@ -75,8 +76,11 @@ def on_message(client, obj, msg):
                  msg.topic.split('/')[-1], msg.payload.decode('UTF-8')) )
     fo.flush()
     os.fsync(fo.fileno())
-
-    gcp_pubsub.publish_msg("mydevice",  msg.payload)
+    try:
+        gcp_pubsub.publish_msg("mydevice",  msg.payload)
+    except Exception as e:
+        print(e)
+        pass
     #
     prev_hour = now.hour
 
