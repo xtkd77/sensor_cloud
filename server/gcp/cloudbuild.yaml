@@ -2,7 +2,7 @@ steps:
 
 # decrypt
 - name: 'gcr.io/cloud-builders/gcloud'
-  args: [ 'kms', 'decrypt', '--ciphertext-file=mqttkey.enc', '--plaintext-file=mqttkey', '--location=global', '--keyring=ambdev', '--key=ambdevkey']
+  args: [ 'kms', 'decrypt', '--ciphertext-file=server/gcp/mqttkey.enc', '--plaintext-file=server/gcp/mqttkey', '--location=global', '--keyring=ambdev', '--key=ambdevkey']
 
 # build docker image
 - name: 'gcr.io/cloud-builders/docker'
