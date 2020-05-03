@@ -8,6 +8,9 @@ RUN apt install python3-pip -y -qq  --no-install-recommends
 RUN apt install python3-setuptools -y -qq  --no-install-recommends
 RUN pip3 install --upgrade pip
 
+# Set local directory root
+WORKDIR server/gcp
+
 # install Python modules needed by the Python app
 COPY requirements.txt /usr/src/app/
 RUN pip install --no-cache-dir -r /usr/src/app/requirements.txt
