@@ -1,3 +1,4 @@
+#!/usr/bin/env pytyon3
 import sys, os
 import pandas as pd
 import matplotlib.pyplot as plt

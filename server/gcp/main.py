@@ -1,40 +1,35 @@
 # -*- coding: utf-8 -*-
 """
-
 センサーロガーのメッセージを受信してファイルに保存するMQTT Client の実装です。
 
 (c) TORUPA Laboratory 2019
-
 """
 
-import sys, os
+import sys
+from os import path, fsync
 import urllib.parse as urlparse
 import paho.mqtt.client as mqtt
 import socket, select
 import datetime
 
-import gcp_pubsub # Google PubSub を利用するためのmodule
-
-gcp_pubsub.initialize()
-
-mqtt_url = sys.argv[1] # e.g., "mqtt://username:password@ip_addr:port"
+mqtt_url = "mqtt://username:password@ip_addr:port"
+#url_str = os.environ.get('CLOUDMQTT_URL', mqtt_url)
+main_root = path.dirname(path.abspath(__file__))
+with open(main_root + "/mqttkey") as f:
+    mqtt_url = f.readline()
+print("mqtt_url={}".format(mqtt_url))
 
 topics = ['esp32/pressure', 'esp32/temperature', 'esp32/humidity']
-url_str = os.environ.get('CLOUDMQTT_URL', mqtt_url)
-
 
 #
 # Make an instance of MQTT client
 #
-#mqttc = mqtt.Client(client_id="", clean_session=True, userdata=None, protocol=mqtt.MQTTv311, transport='tcp')
-mqttc = mqtt.Client("", True, None, mqtt.MQTTv31)
+mqttc = mqtt.Client(client_id="my_mqtt_client", clean_session=True, userdata=None,\
+    protocol=mqtt.MQTTv311, transport='tcp')
+#mqttc = mqtt.Client("", True, None, mqtt.MQTTv31)
 
-#
-# Parse CLOUDMQTT_URL
-#
-url_prs = urlparse.urlparse(url_str)
+url_prs = urlparse.urlparse(mqtt_url)
 print('mqtt://{}:{}@{}{}'.format(url_prs.username, url_prs.password, url_prs.hostname, url_prs.port) )
-
 fo = None
 prev_hour = -1
 tz = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
@@ -75,12 +70,7 @@ def on_message(client, obj, msg):
              % (now.strftime('%Y/%m/%d'), now.strftime('%H:%M:%S'),
                  msg.topic.split('/')[-1], msg.payload.decode('UTF-8')) )
     fo.flush()
-    os.fsync(fo.fileno())
-    try:
-        gcp_pubsub.publish_msg("mydevice",  msg.payload)
-    except Exception as e:
-        print(e)
-        pass
+    fsync(fo.fileno())
     #
     prev_hour = now.hour
 
