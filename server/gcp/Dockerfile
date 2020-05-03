@@ -36,8 +36,8 @@ WORKDIR server/gcp
 #RUN rm /tmp/requirements.txt
 
 # copy files required for the app to run
-COPY main.py /usr/src/app/
-COPY mqttkey  /usr/src/app/
+COPY server/gcp/main.py /usr/src/app/
+COPY server/gcp/mqttkey  /usr/src/app/
 
 # tell the port number the container should expose
 EXPOSE 5000
