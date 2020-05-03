@@ -2,17 +2,17 @@ steps:
 
 # decrypt
 - name: 'gcr.io/cloud-builders/gcloud'
-  args: [ 'kms', 'decrypt', '--ciphertext-file=mqttkey.enc', '--plaintext-file=mqttkey', '--location=global', '--keyring=$GCP_KMS_KEYRING', '--key=$GCP_KMS_KEY']
+  args: [ 'kms', 'decrypt', '--ciphertext-file=mqttkey.enc', '--plaintext-file=mqttkey', '--location=global', '--keyring=ambdev', '--key=ambdevkey']
 
 # build docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'asia.gcr.io/uavclouddev/amvserver', '.']
+  args: ['build', '-t', 'asia.gcr.io/ambmonitordev/amvserver', '.']
   timeout: 500s
 #docker build --no-cache -t ${docker_image_path} .
 
 # push docker image to registry
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'asia.gcr.io/uavclouddev/ambserver']
+  args: ['push', 'asia.gcr.io/ambmonitordev/ambserver']
 #docker push ${storage_region}/${project_id}/${image_name}
 
 # deploy to container
