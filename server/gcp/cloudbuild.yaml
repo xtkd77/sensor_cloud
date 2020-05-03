@@ -2,6 +2,9 @@
 # For default substitutions, see
 # https://cloud.google.com/cloud-build/docs/configuring-builds/substitute-variable-values?hl=ja
 #
+# COMMIT_SHA, see
+# https://cloud.google.com/run/docs/continuous-deployment-with-cloud-build?hl=ja
+#
 
 steps:
 
@@ -11,7 +14,7 @@ steps:
 
 # build docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'asia.gcr.io/$PROJECT_ID/ambserver', '-f', 'server/gcp/Dockerfile', './server/gcp']
+  args: ['build', '-t', 'asia.gcr.io/$PROJECT_ID/ambserver:$COMMIT_SHA', '-f', 'server/gcp/Dockerfile', './server/gcp']
   timeout: 500s
 #docker build --no-cache -t ${docker_image_path} .
 
@@ -22,7 +25,7 @@ steps:
 
 # push docker image to registry
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'asia.gcr.io/$PROJECT_ID/ambserver']
+  args: ['push', 'asia.gcr.io/$PROJECT_ID/ambserver:$COMMIT_SHA']
 #docker push ${storage_region}/${project_id}/${image_name}
 
 # deploy to container
