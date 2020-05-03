@@ -6,7 +6,7 @@ steps:
 
 # build docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'asia.gcr.io/ambmonitordev/ambserver', '-f', 'server/gcp/Dockerfile', '.']
+  args: ['build', '-t', 'asia.gcr.io/ambmonitordev/ambserver', '-f', 'server/gcp/Dockerfile', './server/gcp']
   timeout: 500s
 #docker build --no-cache -t ${docker_image_path} .
 

@@ -28,7 +28,7 @@ RUN pip3 install --upgrade pip \
   && pip3 install google-cloud-pubsub
 
 # Set local directory root
-WORKDIR server/gcp
+#WORKDIR server/gcp
 
 # install Python modules needed by the Python app
 #COPY requirements.txt /tmp/
@@ -36,8 +36,8 @@ WORKDIR server/gcp
 #RUN rm /tmp/requirements.txt
 
 # copy files required for the app to run
-COPY server/gcp/main.py /usr/src/app/
-COPY server/gcp/mqttkey  /usr/src/app/
+COPY main.py /usr/src/app/
+COPY mqttkey  /usr/src/app/
 
 # tell the port number the container should expose
 EXPOSE 5000
