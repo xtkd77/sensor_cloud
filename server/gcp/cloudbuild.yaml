@@ -6,13 +6,13 @@ steps:
 
 # build docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'asia.gcr.io/ambmonitordev/amvserver', '-f', 'server/gcp/Dockerfile', '.']
+  args: ['build', '-t', 'asia.gcr.io/ambmonitordev/amvserver:mytag', '-f', 'server/gcp/Dockerfile', '.']
   timeout: 500s
 #docker build --no-cache -t ${docker_image_path} .
 
 # push docker image to registry
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'asia.gcr.io/ambmonitordev/ambserver']
+  args: ['push', 'asia.gcr.io/ambmonitordev/ambserver:mytag']
 #docker push ${storage_region}/${project_id}/${image_name}
 
 # deploy to container
