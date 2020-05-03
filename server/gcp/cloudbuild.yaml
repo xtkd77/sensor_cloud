@@ -1,0 +1,36 @@
+steps:
+
+# decrypt
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: [ 'kms', 'decrypt', '--ciphertext-file=mqttkey.enc', '--plaintext-file=mqttkey', '--location=global', '--keyring=$GCP_KMS_KEYRING', '--key=$GCP_KMS_KEY']
+
+# build docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'asia.gcr.io/uavclouddev/amvserver', '.']
+  timeout: 500s
+#docker build --no-cache -t ${docker_image_path} .
+
+# push docker image to registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'asia.gcr.io/uavclouddev/ambserver']
+#docker push ${storage_region}/${project_id}/${image_name}
+
+# deploy to container
+#- name: 'gcr.io/cloud-builders/kubectl'
+#  args:  ['apply', '-f', './deployment.yaml', '--record']
+#  env:
+#  - 'CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a'
+#  - 'CLOUDSDK_CONTAINER_CLUSTER=sokui'
+
+#- name: 'gcr.io/cloud-builders/gke-deploy:stable'
+#  args:
+# - run
+#  - --filename=deployment.yaml
+#  - --image=asia.gcr.io/uavclouddev/ambserver:latest
+#  - --location=asia-northeast1-a
+#  - --cluster=
+
+#- name: 'gcr.io/cloud-builders/kubectl'
+#  args: ['rollout' ,'history', 'deployment/gnsspos']
+
+
