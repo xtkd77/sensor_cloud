@@ -1,3 +1,8 @@
+#
+# For default substitutions, see
+# https://cloud.google.com/cloud-build/docs/configuring-builds/substitute-variable-values?hl=ja
+#
+
 steps:
 
 # decrypt
@@ -6,13 +11,18 @@ steps:
 
 # build docker image
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['build', '-t', 'asia.gcr.io/ambmonitordev/ambserver', '-f', 'server/gcp/Dockerfile', './server/gcp']
+  args: ['build', '-t', 'asia.gcr.io/$PROJECT_ID/ambserver', '-f', 'server/gcp/Dockerfile', './server/gcp']
   timeout: 500s
 #docker build --no-cache -t ${docker_image_path} .
 
+# decrypt environment variable
+#- name: gcr.io/$PROJECT_ID/env
+#  args:
+#  secretEnv: ['WORD']
+
 # push docker image to registry
 - name: 'gcr.io/cloud-builders/docker'
-  args: ['push', 'asia.gcr.io/ambmonitordev/ambserver']
+  args: ['push', 'asia.gcr.io/$PROJECT_ID/ambserver']
 #docker push ${storage_region}/${project_id}/${image_name}
 
 # deploy to container
@@ -34,3 +44,7 @@ steps:
 #  args: ['rollout' ,'history', 'deployment/gnsspos']
 
 
+#secrets:
+#   - kmsKeyName: projects/$PROJECT_ID/locations/global/keyRings/ambdev/cryptoKeys/ambdevkey
+#    secretEnv:
+#      HELLO_WORLD: CiQASRI0yFRhMxXqaUJsiGpYIgxeKdwYlvuQKWialmq2e6gIeCoSRAC5dgXS7GQoZXAZb8mM1PrRjppbe3ChfrtGXk0ytxaS3Fir3v7dQNNn6wUH1dm4PDebLi7WMAITpay2myZ/HGbmRSyq
