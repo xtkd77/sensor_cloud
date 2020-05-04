@@ -33,9 +33,6 @@ class MqttClient(mqtt.Client):
          topoics.
         '''
         print("on_connect. ", rc, flags)
-        if rc == 0:
-            for tp in self._topics:
-                self.subscribe(tp)
 
 
     def on_message(self, client, obj, msg):
