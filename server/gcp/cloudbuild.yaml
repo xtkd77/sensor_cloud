@@ -35,8 +35,8 @@ steps:
   args:
   - '-c'
   - |
-    sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" kubernetes.yaml.tpl | \
-    sed "s/COMMIT_SHA/${SHORT_SHA}/g" > sensor_cloud/server/gcp/kubernetes.yaml
+    sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" server/gcp/kubernetes.yaml.tpl | \
+    sed "s/COMMIT_SHA/${SHORT_SHA}/g" > server/gcp/kubernetes.yaml
 
 # This step deploys the new version of our container image
 # in the hello-cloudbuild Kubernetes Engine cluster.
