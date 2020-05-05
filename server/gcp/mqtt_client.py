@@ -4,7 +4,9 @@
 下記のプログラムを参考にしました。
 https://github.com/eclipse/paho.mqtt.python/blob/master/examples/client_sub-class.py
 
-(c) TORUPA Laboratory 2019
+このプログラムを使用するときは、環境変数 "CLOUDMQTT_KEY" にMQTT broker へのアクセスする情報を設定してください。
+
+                    (c) TORUPA Laboratory 2019
 """
 
 import sys
@@ -91,13 +93,12 @@ class MqttClient(mqtt.Client):
         if url_prs.username is not None and url_prs.password is not None:
             self.username_pw_set(url_prs.username, url_prs.password)
         self.connect(url_prs.hostname, url_prs.port, 60)
-        #subscribe(self, "hoge", hostname = url_prs.hostname, port = url_prs.port)
         for tp in topics:
             self.subscribe(tp)
         #self.subscribe("$SYS/#")
         print('loop_forever')
-        #self.loop_forever(timeout=1.0, max_packets=1, retry_first_connection=False)
-        self.loop_forever()
+        self.loop_forever(timeout=1.0, max_packets=1, retry_first_connection=False)
+        #self.loop_forever()
 
 
 def test_mqtt_client():
