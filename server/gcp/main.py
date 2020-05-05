@@ -9,7 +9,7 @@ import sys
 from os import path
 import sensor_logger
 
-
+print("hello")
 main_root = path.dirname(path.abspath(__file__))
 with open(main_root + "/mqttkey") as f:
     mqtt_url = f.readline()
