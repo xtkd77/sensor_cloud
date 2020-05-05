@@ -40,8 +40,7 @@ class MqttClient(mqtt.Client):
 
 
     def on_connect(self, client, userdata, flags, rc):
-        '''When MQTT clienct connection established, start subscribing
-         topoics.
+        '''When MQTT clienct connection established, start subscribing topoics.
         '''
         print("on_connect. ", rc, flags)
 
@@ -52,7 +51,7 @@ class MqttClient(mqtt.Client):
         now = datetime.now(self._tz)
         print(self._prev_time.minute, now.minute)
         # If hour is changed, output file name is changed.
-        if self._prev_time.minute!= now.minute:
+        if self._prev_time.hour!= now.hour:
             if self._fo is not None:
                 fsync(self._fo.fileno())
                 self._fo.close()
