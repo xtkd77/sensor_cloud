@@ -17,6 +17,6 @@ print("mqtt_url={}".format(mqtt_url))
 
 topics = ['esp32/pressure', 'esp32/temperature', 'esp32/humidity']
 
-mc = mqtt_client.MqttClient(mqtt_url)
+mc = mqtt_client.MqttClient(mqtt_url, "mqtt-log-test")
 mc.run(topics)
-#############################################################################
+
