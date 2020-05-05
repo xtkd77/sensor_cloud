@@ -40,7 +40,7 @@ COPY main.py /usr/src/app/
 COPY sensor_logger.py /usr/src/app/
 COPY google_cloud_storage.py /usr/src/app/
 COPY mqttkey  /usr/src/app/
-COPY ambmonitordev-91298aa9a897.json /usr/src/app
+COPY ambmonitordev-91298aa9a897.json /usr/src/app/
 
 
 # tell the port number the container should expose

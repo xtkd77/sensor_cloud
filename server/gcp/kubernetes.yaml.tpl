@@ -17,7 +17,7 @@ kind: Deployment
 metadata:
   name: ambcluster-deployment
   labels:
-    app: ambcluster-deployment
+    app: ambient_server
 spec:
   replicas: 1
   selector:
@@ -31,6 +31,9 @@ spec:
       containers:
       - name: ambserver
         image: asia.gcr.io/GOOGLE_CLOUD_PROJECT/ambserver:COMMIT_SHA
+        env:
+        - name: GOOGLE_APPLICATION_CREDENTIALS
+          value: /usr/src/app/ambmonitordev-91298aa9a897.json
         ports:
         - containerPort: 8080
 ---
