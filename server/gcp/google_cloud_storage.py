@@ -19,7 +19,7 @@ def upload_file(local_fpath:str, bucket_name:str, remote_fpath:str):
     bucket = client.lookup_bucket(bucket_name)
     assert isinstance(bucket, storage.bucket.Bucket)
     if not path.isfile(local_fpath):
-        print(__name__, " local file {} not found.".format(local_fpath) )
+        print("({}) local file {} not found.".format(__name__, local_fpath) )
         return ""
     blob = bucket.blob(remote_fpath)
     if blob is not None:

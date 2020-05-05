@@ -9,26 +9,31 @@ https://github.com/eclipse/paho.mqtt.python/blob/master/examples/client_sub-clas
                     (c) TORUPA Laboratory 2019
 """
 
-import sys
 from os import path, fsync, environ
 from urllib.parse import urlparse 
-import paho.mqtt.client as mqtt
-import paho.mqtt.subscribe as subscribe
-import socket, select
-import datetime
+from datetime import datetime, timezone, timedelta
 
+import paho.mqtt.client as mqtt
+
+## 内製のプログラム.
+import google_cloud_storage
 
 class MqttClient(mqtt.Client):
 
-    def __init__(self, mqtt_url= "mqtt://username:password@ip_addr:port"):
+    def __init__(self, mqtt_url:str,  bucket_name:str):
         """
-
+        Args
+        mqtt_urtl, url in the form like "mqtt://username:password@ip_addr:port"
+        bucket_name, bucket name of Google Cloud Storage
         """
         # Make an instance of MQTT client
         super(MqttClient, self).__init__(client_id="", clean_session=True, userdata=None,\
                 protocol=mqtt.MQTTv311, transport='tcp')
         self._mqtt_url = mqtt_url
         self._fo = None # file object
+        self._bucket_name = bucket_name
+        self._prev_time = None
+
 
     def on_connect(self, client, userdata, flags, rc):
         '''When MQTT clienct connection established, start subscribing
@@ -39,26 +44,31 @@ class MqttClient(mqtt.Client):
 
     def on_message(self, client, obj, msg):
         """ MQTTメッセージを受信し、データをファイルに出力します。 """
-        print(__name__, 'topic=', msg.topic, ' qos=', str(msg.qos), " payload=", msg.payload)
-        now = datetime.datetime.now(self._tz)
+        #print(__name__, 'topic=', msg.topic, ' qos=', str(msg.qos), " payload=", msg.payload)#
+        now = datetime.now(self._tz)
+        print(self._prev_time.minute, now.minute)
         # If hour is changed, output file name is changed.
-        if self._prev_hour != now.hour:
+        if self._prev_time.minute!= now.minute:
             if self._fo is not None:
+                fsync(self._fo.fileno())
                 self._fo.close()
+                ### storage に upload する
+                url = google_cloud_storage.upload_file(self._fo.name, self._bucket_name,
+                        "{}{}".format(now.strftime('%Y/%m/%d/'), path.basename(self._fo.name)))
+                print( " ({}) file is uploaded from {} to {}".format(__name__, self._fo.name, url))
                 self._fo = None
         if self._fo == None:
             filename = '%s.sensor_mqtt.log' % now.strftime('%Y%m%d_%H%M%S')    
             self._fo = open(filename, 'w')
             print(f"open: {filename}  datetime:{now}")
             self._fo.write('date,time,topic,value,\n')
-        # write data to file.
         try:
             self._fo.write("%s,%s,%s,%s,\n"
                  % (now.strftime('%Y/%m/%d'), now.strftime('%H:%M:%S'),
                  msg.topic.split('/')[-1], msg.payload.decode('UTF-8')) )
             self._fo.flush()
             fsync(self._fo.fileno())
-            self._prev_hour = now.hour
+            self._prev_time = now
         except Exception as e:
             print(e)
 
@@ -83,8 +93,8 @@ class MqttClient(mqtt.Client):
         topics, list of string
         """
         self._fo = None
-        self._prev_hour = -1
-        self._tz = datetime.timezone(datetime.timedelta(hours=+9), 'JST')
+        self._prev_time = datetime.now() - timedelta(days=1)
+        self._tz = timezone(timedelta(hours=+9), 'JST')
         self._topics = topics
 
         url_prs = urlparse(self._mqtt_url)
@@ -103,7 +113,7 @@ class MqttClient(mqtt.Client):
 
 def test_mqtt_client():
     url_str = environ.get('CLOUDMQTT_KEY')
-    mc = MqttClient(url_str)
+    mc = MqttClient(url_str, "bucket_name")
     mc.run(topics = ['esp32/pressure', 'esp32/temperature', 'esp32/humidity'])
 
 if __name__ == "__main__":
