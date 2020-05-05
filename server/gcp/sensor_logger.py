@@ -1,10 +1,14 @@
 # -*- coding: utf-8 -*-
 """
-センサーロガーのメッセージを受信してファイルに保存するMQTT Client の実装です。
-下記のプログラムを参考にしました。
+センサーロガーのメッセージを受信してファイルに保存するMQTT Client と、保存したファイルをGoogle Cloud Storage に upload する機能を実装ています。
+
+MQTT client は下記のプログラムを参考にしました。
 https://github.com/eclipse/paho.mqtt.python/blob/master/examples/client_sub-class.py
 
-このプログラムを使用するときは、環境変数 "CLOUDMQTT_KEY" にMQTT broker へのアクセスする情報を設定してください。
+このプログラムを使用するときは、環境変数 
+"CLOUDMQTT_KEY" にMQTT broker へのアクセスする情報
+"GOOGLE_APPLICATION_CREDENTIALS" Storage にアクセス権のあるサービスアカウントのキー
+を設定してください。
 
                     (c) TORUPA Laboratory 2019
 """

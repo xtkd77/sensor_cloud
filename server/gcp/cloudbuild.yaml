@@ -12,6 +12,10 @@ steps:
 - name: 'gcr.io/cloud-builders/gcloud'
   args: [ 'kms', 'decrypt', '--ciphertext-file=server/gcp/mqttkey.enc', '--plaintext-file=server/gcp/mqttkey', '--location=global', '--keyring=ambdev', '--key=ambdevkey']
 
+# decrypt
+- name: 'gcr.io/cloud-builders/gcloud'
+  args: [ 'kms', 'decrypt', '--ciphertext-file=server/gcp/ambmonitordev-91298aa9a897.json.enc', '--plaintext-file=server/gcp/ambmonitordev-91298aa9a897.json', '--location=global', '--keyring=ambdev', '--key=ambdevkey']
+
 # build docker image
 - name: 'gcr.io/cloud-builders/docker'
   args: ['build', '-t', 'asia.gcr.io/$PROJECT_ID/ambserver:$COMMIT_SHA', '-f', 'server/gcp/Dockerfile', './server/gcp']
