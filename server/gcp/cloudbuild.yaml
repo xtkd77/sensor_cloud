@@ -8,19 +8,49 @@
 
 steps:
 
-# decrypt
 - name: 'gcr.io/cloud-builders/gcloud'
+  id: Decrypt1
   args: [ 'kms', 'decrypt', '--ciphertext-file=server/gcp/mqttkey.enc', '--plaintext-file=server/gcp/mqttkey', '--location=global', '--keyring=ambdev', '--key=ambdevkey']
 
-# decrypt
 - name: 'gcr.io/cloud-builders/gcloud'
+  id: Decrypt2
   args: [ 'kms', 'decrypt', '--ciphertext-file=server/gcp/ambmonitordev-91298aa9a897.json.enc', '--plaintext-file=server/gcp/ambmonitordev-91298aa9a897.json', '--location=global', '--keyring=ambdev', '--key=ambdevkey']
 
-# build docker image
 - name: 'gcr.io/cloud-builders/docker'
+  id: Build
   args: ['build', '-t', 'asia.gcr.io/$PROJECT_ID/ambserver:$COMMIT_SHA', '-f', 'server/gcp/Dockerfile', './server/gcp']
   timeout: 500s
 #docker build --no-cache -t ${docker_image_path} .
+
+# This step deploys the new version of our container image
+# in the hello-cloudbuild Kubernetes Engine cluster.
+- name: 'gcr.io/cloud-builders/kubectl'
+  id: Deploy
+  args:
+  - 'apply'
+  - '-f'
+  - 'kubernetes.yaml'
+  env:
+  - 'CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a'
+  - 'CLOUDSDK_CONTAINER_CLUSTER=ambcluster'
+
+# This step copies the applied manifest to the production branch
+# The COMMIT_SHA variable is automatically
+# replaced by Cloud Build.
+- name: 'gcr.io/cloud-builders/git'
+  id: Copy to production branch
+  entrypoint: /bin/sh
+  args:
+  - '-c'
+  - |
+    set -x && \
+    git config user.email $(gcloud auth list --filter=status:ACTIVE --format='value(account)') && \
+    git fetch origin production && git checkout production && \
+    git checkout $COMMIT_SHA kubernetes.yaml && \
+    git commit -m "Manifest from commit $COMMIT_SHA 
+    $(git log --format=%B -n 1 $COMMIT_SHA)" && \
+    git push origin production
+
 
 # decrypt environment variable
 #- name: gcr.io/$PROJECT_ID/env
