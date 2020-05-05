@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: ambserver
-        image: gcr.io/GOOGLE_CLOUD_PROJECT/ambserver:COMMIT_SHA
+        image: asia.gcr.io/GOOGLE_CLOUD_PROJECT/ambserver:COMMIT_SHA
         ports:
         - containerPort: 8080
 ---
