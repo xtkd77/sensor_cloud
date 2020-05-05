@@ -29,7 +29,7 @@ steps:
   args:
   - 'apply'
   - '-f'
-  - 'kubernetes.yaml'
+  - 'server/gcp/kubernetes.yaml'
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a'
   - 'CLOUDSDK_CONTAINER_CLUSTER=ambcluster'
