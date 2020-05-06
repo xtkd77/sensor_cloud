@@ -35,15 +35,15 @@ steps:
   args:
   - '-c'
   - |
-    sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" server/gcp/kubernetes.yaml | \
-    sed "s/COMMIT_SHA/${COMMIT_SHA}/g" > server/gcp/kubernetes.yaml
+    sed "s/GOOGLE_CLOUD_PROJECT/${PROJECT_ID}/g" server/gcp/template_deployment_kubernetes.yaml | \
+    sed "s/COMMIT_SHA/${COMMIT_SHA}/g" > server/gcp/deployment_kubernetes.yaml
 
 - name: 'gcr.io/cloud-builders/kubectl'
   id: Deploy
   args:
   - 'apply'
   - '-f'
-  - 'server/gcp/kubernetes.yaml'
+  - 'server/gcp/deployment_kubernetes.yaml'
   env:
   - 'CLOUDSDK_COMPUTE_ZONE=asia-northeast1-a'
   - 'CLOUDSDK_CONTAINER_CLUSTER=ambcluster'
