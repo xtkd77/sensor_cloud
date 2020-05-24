@@ -40,7 +40,8 @@ class DataFileLogger:
                 print(f"open: {filename}  datetime:{_now}")
                 self._fo.write('datetime,temperature,pressure,humidity\n')
             # write data on file
-            self._fo.write("%s,%s".format(_now.strftime('%Y/%m/%d %H:%M:%S'), data_str)
+            self._fo.write("{},{}".format(_now.strftime('%Y/%m/%d %H:%M:%S'), data_str))
+            self._fo.write("\n")
             self._fo.flush()
             fsync(self._fo.fileno())
             self._prev_time = _now
