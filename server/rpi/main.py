@@ -6,6 +6,10 @@ from datetime import datetime, date, timezone, timedelta
 from os import path, fsync, environ
 
 
+## 内製のプログラム.
+import google_cloud_storage
+
+
 class DataFileLogger:
     """
     入力されたデータを1時間ごとにファイルに書く
@@ -29,9 +33,9 @@ class DataFileLogger:
                     fsync(self._fo.fileno())
                     self._fo.close()
                     ### storage に upload する
-                   # url = google_cloud_storage.upload_file(self._fo.name, self._bucket_name,
-                   #         "{}{}".format(now.strftime('%Y/%m/%d/'), path.basename(self._fo.name)))
-                    #print( " ({}) file is uploaded from {} to {}".format(__name__, self._fo.name, url))
+                    url = google_cloud_storage.upload_file(self._fo.name, "rpi_bme280",
+                            "{}{}".format(_now.strftime('%Y/%m/%d/'), path.basename(self._fo.name)))
+                    print( " ({}) file is uploaded from {} to {}".format(__name__, self._fo.name, url))
                     self._fo = None
             # file open
             if self._fo == None:
